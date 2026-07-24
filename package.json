@@ -1,0 +1,11 @@
+{
+  "name": "hp-enterprise-brain",
+  "private": true,
+  "type": "module",
+  "workspaces": ["contracts", "web", "api", "database", "events"],
+  "scripts": {
+    "generate": "npm run generate -w @hpbrain/contracts",
+    "db:migrate": "npm run migrate -w @hpbrain/database",
+    "db:rollback": "npm run rollback -w @hpbrain/database"
+  }
+}

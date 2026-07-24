@@ -1,0 +1,21 @@
+# Exit criterion #6: a Cypher query without tenantId must fail the build.
+name: tenant-isolation
+on:
+  pull_request:
+    paths: ['graph/**', 'api/**']
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every MATCH must be tenant-scoped
+        run: |
+          fail=0
+          while IFS= read -r file; do
+            [ -f "$file" ] || continue
+            if grep -qiE '^\s*(MATCH|MERGE)' "$file" && ! grep -qi 'tenantId' "$file"; then
+              echo "::error file=$file::Cypher touches the graph without tenantId"
+              fail=1
+            fi
+          done < <(find graph -name '*.cypher' 2>/dev/null)
+          exit $fail

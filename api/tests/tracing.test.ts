@@ -1,0 +1,17 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { tracingMiddleware } from '../src/middleware/tracing.middleware.js';
+
+test('tracingMiddleware adds requestId and correlationId', async () => {
+  let captured: any = null;
+  const req = { headers: {} } as any;
+  const res = { setHeader: (k: string, v: string) => { captured = { ...captured, [k]: v }; } } as any;
+  const next = () => {};
+
+  tracingMiddleware(req, res, next);
+
+  assert.ok(req.tracing.requestId);
+  assert.ok(req.tracing.correlationId);
+  assert.ok(res._headers?.['x-request-id'] || captured?.['x-request-id']);
+  assert.ok(res._headers?.['x-correlation-id'] || captured?.['x-correlation-id']);
+});
